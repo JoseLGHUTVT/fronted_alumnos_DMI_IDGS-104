@@ -4,11 +4,10 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { useSelector } from "react-redux";
 
-import {
-    SideMenuProps
-} from "../interfaces/menu.interface";
-
+import { SideMenuProps } from "../interfaces/menu.interface";
+import { RootState } from "../store/store";
 import MenuItem from "./MenuItem";
 
 export default function SideMenu({
@@ -19,9 +18,19 @@ export default function SideMenu({
     onLogout
 }: SideMenuProps) {
 
+    // Obtener usuario del estado global de Redux
+    const user = useSelector((state: RootState) => state.auth.user);
+
     if (!visible) {
         return null;
     }
+
+    // Calcular el nombre completo o email por defecto
+    const displayName = user?.nombre
+        ? `${user.nombre} ${user.apellido}`.trim()
+        : user?.email ? user.email.split("@")[0] : "Alumno";
+
+    const initial = displayName.charAt(0).toUpperCase();
 
     return (
         <View style={styles.overlay}>
@@ -33,19 +42,17 @@ export default function SideMenu({
                 <View style={styles.userContainer}>
 
                     <View style={styles.avatar}>
-
                         <Text style={styles.avatarText}>
-                            A
+                            {initial}
                         </Text>
-
                     </View>
 
                     <Text style={styles.name}>
-                        Ana García
+                        {displayName}
                     </Text>
 
                     <Text style={styles.email}>
-                        ana@test.com
+                        {user?.email || "Sin correo"}
                     </Text>
 
                 </View>
@@ -91,6 +98,7 @@ export default function SideMenu({
                 </TouchableOpacity>
 
             </View>
+
             <TouchableOpacity
                 style={styles.background}
                 onPress={onClose}
@@ -99,7 +107,6 @@ export default function SideMenu({
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     overlay: {
